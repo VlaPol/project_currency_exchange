@@ -8,6 +8,7 @@ public class Main {
 
         Property property = new Property(System.getenv("LOCAL_CURRENCY"));
         CurrencyExchangeRepository currencyExchangeRepository = new CurrencyExchangeRepository();
-        currencyExchangeRepository.saveRate(property.getLocalCurrency());
+        currencyExchangeRepository.saveRateToFile(property.getLocalCurrency());
+        currencyExchangeRepository.getRateFromFile("2023-03-23");
     }
 }
