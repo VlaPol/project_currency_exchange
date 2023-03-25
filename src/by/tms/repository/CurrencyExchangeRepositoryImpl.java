@@ -6,9 +6,7 @@ import by.tms.entity.Rate;
 import java.io.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Currency;
-import java.util.List;
+import java.util.*;
 
 public class CurrencyExchangeRepositoryImpl implements CurrencyExchangeRepository {
 
@@ -24,17 +22,22 @@ public class CurrencyExchangeRepositoryImpl implements CurrencyExchangeRepositor
     }
 
     @Override
-    public void saveRateToFile(Rate currentCurrencyRate) {
+    public void saveRateToFile(LocalDate currentDate, Rate inputRate) {
 
-        LocalDate currentDate = LocalDate.now();
-
+        Map<Currency, Rate> ratesFromFile = getRatesFromFile(currentDate);
+        String fileName = property.getFileDirectory() + "/" + currentDate + ".csv";
         try {
-            File csvFile = new File(property.getFileDirectory() + "/" + currentDate + ".csv");
-            Writer fileWriter = new FileWriter(csvFile, true);
-            fileWriter.write(String.valueOf(currentCurrencyRate));
-            fileWriter.write(System.lineSeparator());
-
-            fileWriter.close();
+            File csvFile = new File(fileName);
+            Writer fileWriter;
+            if (!ratesFromFile.isEmpty() && ratesFromFile.containsKey(inputRate.getCurrencyCode())) {
+                ratesFromFile.put(inputRate.getCurrencyCode(), inputRate);
+                saveRatesMapToFile(ratesFromFile, currentDate);
+            } else {
+                fileWriter = new FileWriter(csvFile, true);
+                fileWriter.write(String.valueOf(inputRate));
+                fileWriter.write(System.lineSeparator());
+                fileWriter.close();
+            }
         } catch (IOException exception) {
             throw new UncheckedIOException(exception);
 
@@ -42,23 +45,25 @@ public class CurrencyExchangeRepositoryImpl implements CurrencyExchangeRepositor
     }
 
     @Override
-    public List<Rate> getRatesFromFile(String currencyRatesDate) {
+    public Map<Currency, Rate> getRatesFromFile(LocalDate currentDate) {
 
         String line;
-        List<Rate> currencyList = new ArrayList<>();
-
+        Map<Currency, Rate> currencyList = new HashMap<>();
+        String fileName = property.getFileDirectory() + "/" + currentDate + ".csv";
         try {
-            BufferedReader br = new BufferedReader(
-                    new FileReader(property.getFileDirectory() + "/" + currencyRatesDate + ".csv")
-            );
+            if (!new File(fileName).exists()) {
+                return currencyList;
+            }
+
+            BufferedReader br = new BufferedReader(new FileReader(fileName));
 
             while ((line = br.readLine()) != null) {
-                String[] stringParts = line.split(",");
+                String[] stringParts = line.split(" ");
                 Rate rate = new Rate();
                 rate.setCurrencyCode(Currency.getInstance(stringParts[0]));
                 rate.setSellCurrencyValue(BigDecimal.valueOf(Double.parseDouble(stringParts[1])));
                 rate.setBuyCurrencyValue(BigDecimal.valueOf(Double.parseDouble(stringParts[2])));
-                currencyList.add(rate);
+                currencyList.put(Currency.getInstance(stringParts[0]), rate);
             }
         } catch (IOException exception) {
             throw new UncheckedIOException(exception);
@@ -66,4 +71,22 @@ public class CurrencyExchangeRepositoryImpl implements CurrencyExchangeRepositor
 
         return currencyList;
     }
+
+    @Override
+    public void removeRateFromFile(Rate rate) {
+
+
+    }
+
+    private void saveRatesMapToFile(Map<Currency, Rate> ratesFromFile, LocalDate currentDate) throws IOException {
+        String fileName = property.getFileDirectory() + "/" + currentDate + ".csv";
+        File csvFile = new File(fileName);
+        Writer fileWriter = new FileWriter(csvFile);
+        for (Map.Entry<Currency, Rate> itm : ratesFromFile.entrySet()) {
+            fileWriter.write(String.valueOf(itm.getValue()));
+            fileWriter.write(System.lineSeparator());
+        }
+        fileWriter.close();
+    }
+
 }

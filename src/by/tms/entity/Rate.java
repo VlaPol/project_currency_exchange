@@ -29,10 +29,22 @@ public class Rate {
         this.buyCurrencyValue = buyCurrencyValue;
     }
 
+    public Currency getCurrencyCode() {
+        return currencyCode;
+    }
+
+    public BigDecimal getSellCurrencyValue() {
+        return sellCurrencyValue;
+    }
+
+    public BigDecimal getBuyCurrencyValue() {
+        return buyCurrencyValue;
+    }
+
     @Override
     public String toString() {
         return currencyCode +
-                ", " + sellCurrencyValue +
-                ", " + buyCurrencyValue;
+                " " + sellCurrencyValue +
+                " " + buyCurrencyValue;
     }
 }
