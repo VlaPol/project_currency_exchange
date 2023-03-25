@@ -1,4 +1,4 @@
 package by.tms.service;
 
-public class CurrencyExchangeService {
+public interface CurrencyExchangeService {
 }

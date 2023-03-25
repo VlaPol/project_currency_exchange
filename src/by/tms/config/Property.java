@@ -1,14 +1,16 @@
 package by.tms.config;
 
+import java.nio.file.Path;
+import java.util.Objects;
+
 public class Property {
 
-    private final String LOCAL_CURRENCY_CODE;
-
-    public Property(String lcc) {
-        this.LOCAL_CURRENCY_CODE = lcc;
+    private final Path fileDirectory;
+     public Property(Path fileDirectory) {
+        this.fileDirectory = Objects.requireNonNull(fileDirectory);
     }
 
-    public String getLocalCurrency(){
-        return LOCAL_CURRENCY_CODE;
+    public Path getFileDirectory() {
+        return fileDirectory;
     }
 }
