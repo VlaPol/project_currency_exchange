@@ -1,16 +1,12 @@
 import by.tms.config.Property;
 import by.tms.controller.CurrencyExchangeController;
-import by.tms.entity.Rate;
 import by.tms.repository.CurrencyExchangeRepository;
 import by.tms.repository.CurrencyExchangeRepositoryImpl;
 import by.tms.service.CurrencyExchangeService;
 import by.tms.service.CurrencyExchangeServiceImpl;
 
 import java.nio.file.Path;
-import java.time.LocalDate;
-import java.util.Currency;
 import java.util.List;
-import java.util.Map;
 
 public class Main {
     public static void main(String[] args) {
@@ -29,10 +25,5 @@ public class Main {
         } else {
             controller.inputCommandHandler("", List.of());
         }
-        Map<Currency,Rate> ratesFromFile = repository.getRatesFromFile(LocalDate.parse("2023-03-25"));
-        for(Map.Entry<Currency,Rate> itm : ratesFromFile.entrySet()){
-            System.out.println(itm.getValue());
-        }
-
     }
 }

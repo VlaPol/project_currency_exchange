@@ -5,6 +5,7 @@ import by.tms.repository.CurrencyExchangeRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Currency;
 import java.util.List;
 import java.util.Map;
@@ -37,5 +38,12 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService {
         if(existingRatesList.containsKey(Currency.getInstance(inputRate.get(1)))) {
             repository.removeRateFromFile(date, Currency.getInstance(inputRate.get(1)));
         }
+    }
+
+    @Override
+    public List<Rate> getListExchangeRates(List<String> inputRate) {
+
+        Map<Currency,Rate> receivedList = repository.getRatesFromFile(LocalDate.parse(inputRate.get(0)));
+        return new ArrayList<>(receivedList.values());
     }
 }

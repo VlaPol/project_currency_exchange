@@ -1,5 +1,6 @@
 package by.tms.controller;
 
+import by.tms.entity.Rate;
 import by.tms.service.CurrencyExchangeService;
 
 import java.util.List;
@@ -21,6 +22,10 @@ public class CurrencyExchangeController {
             }
             case "admin/removeExchangeRate" -> {
                 service.removeExistingRate(inputRate);
+            }
+            case "listExchangeRates" ->{
+                List<Rate> outputList = service.getListExchangeRates(inputRate);
+                System.out.println(outputList);
             }
         }
     }
