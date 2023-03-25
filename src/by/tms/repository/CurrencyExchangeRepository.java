@@ -10,5 +10,5 @@ public interface CurrencyExchangeRepository {
     void saveRateToFile(LocalDate currentDate, Rate currentCurrencyRate);
     Map<Currency,Rate> getRatesFromFile(LocalDate currencyRatesDate);
 
-    void removeRateFromFile(Rate rate);
+    void removeRateFromFile(LocalDate date, Currency deletedCurrency);
 }

@@ -19,20 +19,23 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService {
 
     @Override
     public void addNewExchangeRate(List<String> incomingRateInList) {
-        Rate newRate = new Rate();
-        newRate.setCurrencyCode(Currency.getInstance(incomingRateInList.get(1)));
-        newRate.setSellCurrencyValue(BigDecimal.valueOf(Double.parseDouble(incomingRateInList.get(2))));
-        newRate.setBuyCurrencyValue(BigDecimal.valueOf(Double.parseDouble(incomingRateInList.get(3))));
+        Rate newRate = new Rate.Builder()
+                .currencyCode(Currency.getInstance(incomingRateInList.get(1)))
+                .sellCurrencyValue(BigDecimal.valueOf(Double.parseDouble(incomingRateInList.get(2))))
+                .buyCurrencyValue(BigDecimal.valueOf(Double.parseDouble(incomingRateInList.get(3))))
+                .build();
+
         repository.saveRateToFile(LocalDate.parse(incomingRateInList.get(0)), newRate);
     }
 
     @Override
     public void removeExistingRate(List<String> inputRate) {
 
-        Map<Currency,Rate> existingRatesList = repository.getRatesFromFile(LocalDate.parse(inputRate.get(0)));
+        LocalDate date = LocalDate.parse(inputRate.get(0));
+        Map<Currency,Rate> existingRatesList = repository.getRatesFromFile(date);
 
         if(existingRatesList.containsKey(Currency.getInstance(inputRate.get(1)))) {
-            // repository.removeRate
+            repository.removeRateFromFile(date, Currency.getInstance(inputRate.get(1)));
         }
     }
 }

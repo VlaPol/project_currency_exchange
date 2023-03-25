@@ -5,40 +5,12 @@ import java.util.Currency;
 
 public class Rate {
 
-    private Currency currencyCode;
-    private BigDecimal sellCurrencyValue;
-    private BigDecimal buyCurrencyValue;
-
-    public Rate(Currency currencyCode, BigDecimal sellCurrencyValue, BigDecimal buyCurrencyValue) {
-        this.currencyCode = currencyCode;
-        this.sellCurrencyValue = sellCurrencyValue;
-        this.buyCurrencyValue = buyCurrencyValue;
-    }
-
-    public Rate() {
-    }
-    public void setCurrencyCode(Currency currencyCode) {
-        this.currencyCode = currencyCode;
-    }
-
-    public void setSellCurrencyValue(BigDecimal sellCurrencyValue) {
-        this.sellCurrencyValue = sellCurrencyValue;
-    }
-
-    public void setBuyCurrencyValue(BigDecimal buyCurrencyValue) {
-        this.buyCurrencyValue = buyCurrencyValue;
-    }
+    private final Currency currencyCode;
+    private final BigDecimal sellCurrencyValue;
+    private final BigDecimal buyCurrencyValue;
 
     public Currency getCurrencyCode() {
         return currencyCode;
-    }
-
-    public BigDecimal getSellCurrencyValue() {
-        return sellCurrencyValue;
-    }
-
-    public BigDecimal getBuyCurrencyValue() {
-        return buyCurrencyValue;
     }
 
     @Override
@@ -46,5 +18,36 @@ public class Rate {
         return currencyCode +
                 " " + sellCurrencyValue +
                 " " + buyCurrencyValue;
+    }
+
+    public static class Builder {
+        private Currency currencyCode;
+        private BigDecimal sellCurrencyValue;
+        private BigDecimal buyCurrencyValue;
+
+        public Builder currencyCode(Currency currencyCode) {
+            this.currencyCode = currencyCode;
+            return this;
+        }
+
+        public Builder sellCurrencyValue(BigDecimal sellCurrencyValue) {
+            this.sellCurrencyValue = sellCurrencyValue;
+            return this;
+        }
+
+        public Builder buyCurrencyValue(BigDecimal buyCurrencyValue) {
+            this.buyCurrencyValue = buyCurrencyValue;
+            return this;
+        }
+
+        public Rate build() {
+            return new Rate(this);
+        }
+    }
+
+    private Rate(Builder builder) {
+        currencyCode = builder.currencyCode;
+        sellCurrencyValue = builder.sellCurrencyValue;
+        buyCurrencyValue = builder.buyCurrencyValue;
     }
 }

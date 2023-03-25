@@ -59,11 +59,12 @@ public class CurrencyExchangeRepositoryImpl implements CurrencyExchangeRepositor
 
             while ((line = br.readLine()) != null) {
                 String[] stringParts = line.split(" ");
-                Rate rate = new Rate();
-                rate.setCurrencyCode(Currency.getInstance(stringParts[0]));
-                rate.setSellCurrencyValue(BigDecimal.valueOf(Double.parseDouble(stringParts[1])));
-                rate.setBuyCurrencyValue(BigDecimal.valueOf(Double.parseDouble(stringParts[2])));
-                currencyList.put(Currency.getInstance(stringParts[0]), rate);
+                Rate newRate = new Rate.Builder()
+                        .currencyCode(Currency.getInstance(stringParts[0]))
+                        .sellCurrencyValue(BigDecimal.valueOf(Double.parseDouble(stringParts[1])))
+                        .buyCurrencyValue(BigDecimal.valueOf(Double.parseDouble(stringParts[2])))
+                        .build();
+                currencyList.put(Currency.getInstance(stringParts[0]), newRate);
             }
         } catch (IOException exception) {
             throw new UncheckedIOException(exception);
@@ -73,8 +74,15 @@ public class CurrencyExchangeRepositoryImpl implements CurrencyExchangeRepositor
     }
 
     @Override
-    public void removeRateFromFile(Rate rate) {
+    public void removeRateFromFile(LocalDate date, Currency deletedCurrency) {
 
+        Map<Currency, Rate> currencyList = getRatesFromFile(date);
+        currencyList.remove(deletedCurrency);
+        try {
+            saveRatesMapToFile(currencyList, date);
+        }catch (IOException exception){
+            throw new UncheckedIOException(exception);
+        }
 
     }
 
