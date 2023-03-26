@@ -6,7 +6,8 @@ import java.util.Objects;
 public class Property {
 
     private final Path fileDirectory;
-     public Property(Path fileDirectory) {
+
+    public Property(Path fileDirectory) {
         this.fileDirectory = Objects.requireNonNull(fileDirectory);
     }
 

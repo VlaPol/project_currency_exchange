@@ -1,5 +1,6 @@
 package by.tms.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface CurrencyExchangeService {
@@ -8,4 +9,6 @@ public interface CurrencyExchangeService {
     boolean removeExistingRate(List<String> inputRate);
 
     List<String> getListExchangeRates(List<String> inputRate);
+
+    BigDecimal exchangeCurrencies(List<String> inputRate);
 }
