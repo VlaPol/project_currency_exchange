@@ -33,18 +33,18 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService {
     public boolean removeExistingRate(List<String> inputRate) {
 
         LocalDate date = LocalDate.parse(inputRate.get(0));
-        Map<Currency,Rate> existingRatesList = repository.getRatesFromFile(date);
+        Map<Currency, String> existingRatesList = repository.getRatesFromFile(date);
 
-        if(existingRatesList.containsKey(Currency.getInstance(inputRate.get(1)))) {
-          return repository.removeRateFromFile(date, Currency.getInstance(inputRate.get(1)));
+        if (existingRatesList.containsKey(Currency.getInstance(inputRate.get(1)))) {
+            return repository.removeRateFromFile(date, Currency.getInstance(inputRate.get(1)));
         }
         return false;
     }
 
     @Override
-    public List<Rate> getListExchangeRates(List<String> inputRate) {
+    public List<String> getListExchangeRates(List<String> inputRate) {
 
-        Map<Currency,Rate> receivedList = repository.getRatesFromFile(LocalDate.parse(inputRate.get(0)));
+        Map<Currency, String> receivedList = repository.getRatesFromFile(LocalDate.parse(inputRate.get(0)));
         return new ArrayList<>(receivedList.values());
     }
 }

@@ -1,11 +1,14 @@
 package by.tms.controller;
 
-import by.tms.entity.Rate;
 import by.tms.exceptions.AppException;
 import by.tms.exceptions.ovnerexceptions.CommandNotFoundException;
+import by.tms.exceptions.ovnerexceptions.IncorrectCurrencyFormatException;
+import by.tms.exceptions.ovnerexceptions.IncorrectDateFormatException;
 import by.tms.exceptions.ovnerexceptions.IncorrectNumberOfInputParametersException;
 import by.tms.service.CurrencyExchangeService;
 
+import java.time.LocalDate;
+import java.util.Currency;
 import java.util.List;
 
 public class CurrencyExchangeController {
@@ -21,57 +24,81 @@ public class CurrencyExchangeController {
 
     public void inputCommandHandler(String command, List<String> inputRate) {
 
-       try {
+        try {
 
-           if(!isInputCommandRight(command, inputRate)){
-               throw new IncorrectNumberOfInputParametersException();
-           }
+            if (!isInputCommandRight(command, inputRate)) {
+                throw new IncorrectNumberOfInputParametersException();
+            }
+            if (!isInputDateCorrect(inputRate.get(0))) {
+                throw new IncorrectDateFormatException();
+            }
 
-           switch (command) {
-               case "admin/putExchangeRate" -> {
-                   if(service.addNewExchangeRate(inputRate)){
-                       System.out.println("Запись сохранена");
-                   }
-               }
-               case "admin/removeExchangeRate" -> {
-                   if(service.removeExistingRate(inputRate)){
-                       System.out.println("Запись удалена");
-                   }else{
-                       System.err.println("Записи не существует");
-                   }
-               }
-               case "listExchangeRates" -> {
-                   List<Rate> outputList = service.getListExchangeRates(inputRate);
-                   System.out.println("Валюта Покупка Продажа");
-                   for (Rate itm : outputList) {
-                       System.out.println(itm);
-                   }
-               }
-               default -> throw new CommandNotFoundException();
-           }
-       } catch (AppException exception) {
-           System.err.println(exception.getExceptionMessage());
+            switch (command) {
+                case "admin/putExchangeRate" -> {
+                    isInputCurrencyCorrect(inputRate.get(1));
+                    if (service.addNewExchangeRate(inputRate)) {
+                        System.out.println("Запись сохранена");
+                    }
+                }
+                case "admin/removeExchangeRate" -> {
+                    isInputCurrencyCorrect(inputRate.get(1));
+                    if (service.removeExistingRate(inputRate)) {
+                        System.out.println("Запись удалена");
+                    } else {
+                        System.err.println("Записи не существует");
+                    }
+                }
+                case "listExchangeRates" -> {
+                    List<String> outputList = service.getListExchangeRates(inputRate);
+                    System.out.println("Валюта Покупка Продажа");
+                    for (String itm : outputList) {
+                        System.out.println(itm.replace(","," "));
+                    }
+                }
+                default -> throw new CommandNotFoundException();
+            }
+        } catch (AppException exception) {
+            System.err.println(exception.getExceptionMessage());
 
-       } catch (Exception e) {
-           System.err.println("Неизвестная ошибка");
-       }
+        } catch (Exception e) {
+            System.err.println("Неизвестная ошибка");
+        }
     }
 
-    private boolean isInputCommandRight(String command, List<String> inputRate){
+    private boolean isInputDateCorrect(String inputDate) {
+        try {
+            LocalDate.parse(inputDate);
+            return true;
+        } catch (Exception exception) {
+            throw new IncorrectDateFormatException();
+        }
+    }
+
+    private boolean isInputCommandRight(String command, List<String> inputRate) {
 
         switch (command) {
             case "admin/putExchangeRate" -> {
-                if(inputRate.size() == PUT_EXCHANGE_RATE_SIZE) return true;
+                if (inputRate.size() == PUT_EXCHANGE_RATE_SIZE) return true;
             }
             case "admin/removeExchangeRate" -> {
-                if(inputRate.size() == REMOVE_EXCHANGE_RATE_SIZE) return true;
+                if (inputRate.size() == REMOVE_EXCHANGE_RATE_SIZE) return true;
             }
             case "listExchangeRates" -> {
-                if(inputRate.size() == LIST_EXCHANGE_RATE_SIZE) return true;
+                if (inputRate.size() == LIST_EXCHANGE_RATE_SIZE) return true;
             }
         }
 
         return false;
+    }
+
+    private boolean isInputCurrencyCorrect(String inputCurrency) {
+
+        try {
+            Currency.getInstance(inputCurrency);
+            return true;
+        } catch (Exception exception) {
+            throw new IncorrectCurrencyFormatException();
+        }
     }
 
 }

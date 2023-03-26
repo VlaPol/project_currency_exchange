@@ -9,7 +9,7 @@ import java.util.Map;
 public interface CurrencyExchangeRepository {
     boolean saveRateToFile(LocalDate currentDate, Rate currentCurrencyRate);
 
-    Map<Currency, Rate> getRatesFromFile(LocalDate currencyRatesDate);
+    Map<Currency, String> getRatesFromFile(LocalDate currencyRatesDate);
 
     boolean removeRateFromFile(LocalDate date, Currency deletedCurrency);
 }

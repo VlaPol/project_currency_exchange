@@ -24,21 +24,21 @@ public class CurrencyExchangeRepositoryImpl implements CurrencyExchangeRepositor
     @Override
     public boolean saveRateToFile(LocalDate currentDate, Rate inputRate) {
 
-        Map<Currency, Rate> ratesFromFile = getRatesFromFile(currentDate);
+        Map<Currency, String> ratesFromFile = getRatesFromFile(currentDate);
         String fileName = property.getFileDirectory() + "/" + currentDate + ".csv";
         try {
             File csvFile = new File(fileName);
             Writer fileWriter;
             if (!ratesFromFile.isEmpty() && ratesFromFile.containsKey(inputRate.getCurrencyCode())) {
-                ratesFromFile.put(inputRate.getCurrencyCode(), inputRate);
+                ratesFromFile.put(inputRate.getCurrencyCode(), String.valueOf(inputRate).replace(" ", ","));
                 saveRatesMapToFile(ratesFromFile, currentDate);
             } else {
                 fileWriter = new FileWriter(csvFile, true);
-                fileWriter.write(String.valueOf(inputRate));
+                fileWriter.write(String.valueOf(inputRate).replace(" ", ","));
                 fileWriter.write(System.lineSeparator());
                 fileWriter.close();
             }
-        return true;
+            return true;
 
         } catch (IOException exception) {
             throw new UncheckedIOException(exception);
@@ -47,10 +47,10 @@ public class CurrencyExchangeRepositoryImpl implements CurrencyExchangeRepositor
     }
 
     @Override
-    public Map<Currency, Rate> getRatesFromFile(LocalDate currentDate) {
+    public Map<Currency, String> getRatesFromFile(LocalDate currentDate) {
 
         String line;
-        Map<Currency, Rate> currencyList = new HashMap<>();
+        Map<Currency, String> currencyList = new HashMap<>();
         String fileName = property.getFileDirectory() + "/" + currentDate + ".csv";
         try {
             if (!new File(fileName).exists()) {
@@ -60,12 +60,10 @@ public class CurrencyExchangeRepositoryImpl implements CurrencyExchangeRepositor
             BufferedReader br = new BufferedReader(new FileReader(fileName));
 
             while ((line = br.readLine()) != null) {
-                String[] stringParts = line.split(" ");
-                Rate newRate = new Rate.Builder()
-                        .currencyCode(Currency.getInstance(stringParts[0]))
-                        .sellCurrencyValue(BigDecimal.valueOf(Double.parseDouble(stringParts[1])))
-                        .buyCurrencyValue(BigDecimal.valueOf(Double.parseDouble(stringParts[2])))
-                        .build();
+                String[] stringParts = line.split(",");
+                String newRate = Currency.getInstance(stringParts[0]) + "," +
+                        BigDecimal.valueOf(Double.parseDouble(stringParts[1])) + "," +
+                        BigDecimal.valueOf(Double.parseDouble(stringParts[2]));
                 currencyList.put(Currency.getInstance(stringParts[0]), newRate);
             }
         } catch (IOException exception) {
@@ -78,22 +76,22 @@ public class CurrencyExchangeRepositoryImpl implements CurrencyExchangeRepositor
     @Override
     public boolean removeRateFromFile(LocalDate date, Currency deletedCurrency) {
 
-        Map<Currency, Rate> currencyList = getRatesFromFile(date);
+        Map<Currency, String> currencyList = getRatesFromFile(date);
         currencyList.remove(deletedCurrency);
         try {
             saveRatesMapToFile(currencyList, date);
             return true;
-        }catch (IOException exception){
+        } catch (IOException exception) {
             throw new UncheckedIOException(exception);
         }
 
     }
 
-    private void saveRatesMapToFile(Map<Currency, Rate> ratesFromFile, LocalDate currentDate) throws IOException {
+    private void saveRatesMapToFile(Map<Currency, String> ratesFromFile, LocalDate currentDate) throws IOException {
         String fileName = property.getFileDirectory() + "/" + currentDate + ".csv";
         File csvFile = new File(fileName);
         Writer fileWriter = new FileWriter(csvFile);
-        for (Map.Entry<Currency, Rate> itm : ratesFromFile.entrySet()) {
+        for (Map.Entry<Currency, String> itm : ratesFromFile.entrySet()) {
             fileWriter.write(String.valueOf(itm.getValue()));
             fileWriter.write(System.lineSeparator());
         }

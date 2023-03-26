@@ -1,7 +1,5 @@
 package by.tms.service;
 
-import by.tms.entity.Rate;
-
 import java.util.List;
 
 public interface CurrencyExchangeService {
@@ -9,5 +7,5 @@ public interface CurrencyExchangeService {
 
     boolean removeExistingRate(List<String> inputRate);
 
-    List<Rate> getListExchangeRates(List<String> inputRate);
+    List<String> getListExchangeRates(List<String> inputRate);
 }

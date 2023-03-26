@@ -5,6 +5,6 @@ import by.tms.exceptions.AppException;
 public class IncorrectDateFormatException extends AppException {
     @Override
     public String getExceptionMessage() {
-        return "Неверный формат даты";
+        return "Неверный формат даты. Введите в формате гггг-мм-дд";
     }
 }
