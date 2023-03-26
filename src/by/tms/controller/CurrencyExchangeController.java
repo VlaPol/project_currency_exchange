@@ -1,15 +1,14 @@
 package by.tms.controller;
 
 import by.tms.exceptions.AppException;
-import by.tms.exceptions.ovnerexceptions.CommandNotFoundException;
-import by.tms.exceptions.ovnerexceptions.IncorrectCurrencyFormatException;
-import by.tms.exceptions.ovnerexceptions.IncorrectDateFormatException;
-import by.tms.exceptions.ovnerexceptions.IncorrectNumberOfInputParametersException;
+import by.tms.exceptions.ovnerexceptions.*;
 import by.tms.service.CurrencyExchangeService;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Currency;
 import java.util.List;
+import java.util.Locale;
 
 public class CurrencyExchangeController {
 
@@ -35,24 +34,32 @@ public class CurrencyExchangeController {
 
             switch (command) {
                 case "admin/putExchangeRate" -> {
-                    isInputCurrencyCorrect(inputRate.get(1));
-                    if (service.addNewExchangeRate(inputRate)) {
-                        System.out.println("Запись сохранена");
+                    if (isInputCurrencyCorrect(inputRate.get(1))
+                            && !isInputCurrencyLocal("put", inputRate.get(1))
+                            && isInputDataIsCurrency("buy", inputRate.get(2))
+                            && isInputDataIsCurrency("sell", inputRate.get(3))
+                            && isInputDataMoreThanZero("buy", inputRate.get(2))
+                            && isInputDataMoreThanZero("sell", inputRate.get(3))) {
+                        if (service.addNewExchangeRate(inputRate)) {
+                            System.out.println("Запись сохранена");
+                        }
                     }
                 }
                 case "admin/removeExchangeRate" -> {
-                    isInputCurrencyCorrect(inputRate.get(1));
-                    if (service.removeExistingRate(inputRate)) {
-                        System.out.println("Запись удалена");
-                    } else {
-                        System.err.println("Записи не существует");
+                    if (isInputCurrencyCorrect(inputRate.get(1))
+                            && !isInputCurrencyLocal("remove", inputRate.get(1))) {
+                        if (service.removeExistingRate(inputRate)) {
+                            System.out.println("Запись удалена");
+                        } else {
+                            System.err.println("Записи не существует");
+                        }
                     }
                 }
                 case "listExchangeRates" -> {
                     List<String> outputList = service.getListExchangeRates(inputRate);
                     System.out.println("Валюта Покупка Продажа");
                     for (String itm : outputList) {
-                        System.out.println(itm.replace(","," "));
+                        System.out.println(itm.replace(",", " "));
                     }
                 }
                 default -> throw new CommandNotFoundException();
@@ -65,6 +72,12 @@ public class CurrencyExchangeController {
         }
     }
 
+    /**
+     * Проверка даты
+     *
+     * @param inputDate
+     * @return true
+     */
     private boolean isInputDateCorrect(String inputDate) {
         try {
             LocalDate.parse(inputDate);
@@ -74,6 +87,13 @@ public class CurrencyExchangeController {
         }
     }
 
+    /**
+     * Проверка введенной строки на количество парамеров
+     *
+     * @param command
+     * @param inputRate
+     * @return true
+     */
     private boolean isInputCommandRight(String command, List<String> inputRate) {
 
         switch (command) {
@@ -91,6 +111,12 @@ public class CurrencyExchangeController {
         return false;
     }
 
+    /**
+     * Проверка введенной валюты
+     *
+     * @param inputCurrency
+     * @return true
+     */
     private boolean isInputCurrencyCorrect(String inputCurrency) {
 
         try {
@@ -99,6 +125,71 @@ public class CurrencyExchangeController {
         } catch (Exception exception) {
             throw new IncorrectCurrencyFormatException();
         }
+    }
+
+    /**
+     * Проверка локальной валюты. Если action == "put" - проверяем базовую валюту при добавлении,
+     * иначе - при удалении
+     *
+     * @param inputCurrency
+     * @return false
+     */
+    private boolean isInputCurrencyLocal(String action, String inputCurrency) {
+
+        Currency localeCurrency = Currency.getInstance(Locale.getDefault());
+        if (!Currency.getInstance(inputCurrency).equals(localeCurrency))
+            return false;
+        else {
+            if (action.equals("put")) {
+                throw new LocalCurrencyException();
+            } else {
+                throw new DeleteLocalCurrencyException();
+            }
+        }
+    }
+
+    /**
+     * Проверка на то, введены ли курсы. Если type == "buy" - проверяем курс покупки,
+     * иначе - курс продажи
+     *
+     * @param type
+     * @param inputCurrency
+     * @return true
+     */
+    private boolean isInputDataIsCurrency(String type, String inputCurrency) {
+
+        if (type.equals("buy")) {
+            try {
+                BigDecimal bigDecimal = BigDecimal.valueOf(Double.parseDouble(inputCurrency));
+                return true;
+            } catch (NumberFormatException exception) {
+                throw new IncorrectFormatCurrencyBuyRateException();
+            }
+        } else {
+            try {
+                BigDecimal bigDecimal = BigDecimal.valueOf(Double.parseDouble(inputCurrency));
+                return true;
+            } catch (NumberFormatException exception) {
+                throw new IncorrectFormatCurrencySellRateException();
+            }
+        }
+    }
+
+    /**
+     * Проверка введенных курсы на значение больше нуля. Если type == "buy" - проверяем курс покупки,
+     * иначе - курс продажи
+     *
+     * @param type
+     * @param inputCurrency
+     * @return true
+     */
+    private boolean isInputDataMoreThanZero(String type, String inputCurrency) {
+
+        if (!(BigDecimal.valueOf(Double.parseDouble(inputCurrency)).compareTo(BigDecimal.ZERO) > 0)) {
+            if (type.equals("buy")) throw new IncorrectValueCurrencyBuyRateException();
+            if (type.equals("sell")) throw new IncorrectValueCurrencySellRateException();
+        }
+        return true;
     }
 
 }
