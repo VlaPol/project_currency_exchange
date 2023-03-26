@@ -7,8 +7,9 @@ import java.util.Currency;
 import java.util.Map;
 
 public interface CurrencyExchangeRepository {
-    void saveRateToFile(LocalDate currentDate, Rate currentCurrencyRate);
-    Map<Currency,Rate> getRatesFromFile(LocalDate currencyRatesDate);
+    boolean saveRateToFile(LocalDate currentDate, Rate currentCurrencyRate);
 
-    void removeRateFromFile(LocalDate date, Currency deletedCurrency);
+    Map<Currency, Rate> getRatesFromFile(LocalDate currencyRatesDate);
+
+    boolean removeRateFromFile(LocalDate date, Currency deletedCurrency);
 }

@@ -22,7 +22,7 @@ public class CurrencyExchangeRepositoryImpl implements CurrencyExchangeRepositor
     }
 
     @Override
-    public void saveRateToFile(LocalDate currentDate, Rate inputRate) {
+    public boolean saveRateToFile(LocalDate currentDate, Rate inputRate) {
 
         Map<Currency, Rate> ratesFromFile = getRatesFromFile(currentDate);
         String fileName = property.getFileDirectory() + "/" + currentDate + ".csv";
@@ -38,6 +38,8 @@ public class CurrencyExchangeRepositoryImpl implements CurrencyExchangeRepositor
                 fileWriter.write(System.lineSeparator());
                 fileWriter.close();
             }
+        return true;
+
         } catch (IOException exception) {
             throw new UncheckedIOException(exception);
 
@@ -74,12 +76,13 @@ public class CurrencyExchangeRepositoryImpl implements CurrencyExchangeRepositor
     }
 
     @Override
-    public void removeRateFromFile(LocalDate date, Currency deletedCurrency) {
+    public boolean removeRateFromFile(LocalDate date, Currency deletedCurrency) {
 
         Map<Currency, Rate> currencyList = getRatesFromFile(date);
         currencyList.remove(deletedCurrency);
         try {
             saveRatesMapToFile(currencyList, date);
+            return true;
         }catch (IOException exception){
             throw new UncheckedIOException(exception);
         }
