@@ -57,9 +57,17 @@ public class CurrencyExchangeController {
                 }
                 case "listExchangeRates" -> {
                     List<String> outputList = service.getListExchangeRates(inputRate);
-                    System.out.println("Валюта Покупка Продажа");
-                    for (String itm : outputList) {
-                        System.out.println(itm.replace(",", " "));
+                    if(!outputList.isEmpty()) {
+                        System.out.format("%s %10s %10s", "Валюта", "Покупка", "Продажа");
+                        System.out.println();
+                        for (String itm : outputList) {
+                            String[] tmpArray = itm.split(",");
+                            System.out.printf("%-9s %-10s %s", tmpArray[0], tmpArray[1], tmpArray[2]);
+                            System.out.println();
+                            //System.out.println(itm.replace(",", " "));
+                        }
+                    }else{
+                        System.out.println("Данные отсутствуют");
                     }
                 }
                 default -> throw new CommandNotFoundException();

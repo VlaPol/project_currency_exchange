@@ -12,9 +12,8 @@ public class Main {
     public static void main(String[] args) {
 
         Path fileDirectory = Path.of(System.getenv("PATH_CURRENCY_REPOSITORY"));
-        Property propertie = new Property(fileDirectory);
 
-        CurrencyExchangeRepository repository = new CurrencyExchangeRepositoryImpl(propertie);
+        CurrencyExchangeRepository repository = new CurrencyExchangeRepositoryImpl(new Property(fileDirectory));
         CurrencyExchangeService service = new CurrencyExchangeServiceImpl(repository);
         CurrencyExchangeController controller = new CurrencyExchangeController(service);
 
