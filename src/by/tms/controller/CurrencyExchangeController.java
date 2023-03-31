@@ -1,5 +1,6 @@
 package by.tms.controller;
 
+import by.tms.config.Property;
 import by.tms.exceptions.AppException;
 import by.tms.exceptions.clientexceptions.*;
 import by.tms.exceptions.ovnerexceptions.*;
@@ -13,14 +14,16 @@ import java.util.Locale;
 
 public class CurrencyExchangeController {
 
-    CurrencyExchangeService service;
+    private final CurrencyExchangeService service;
+    private final Property property;
     public static final int OWNER_PUT_EXCHANGE_RATE_SIZE = 4;
     public static final int OWNER_REMOVE_EXCHANGE_RATE_SIZE = 2;
     public static final int OWNER_LIST_EXCHANGE_RATE_SIZE = 1;
     public static final int CLIENT_PUT_CURRENCY_TO_EXCHANGE_SIZE = 4;
 
-    public CurrencyExchangeController(CurrencyExchangeService service) {
+    public CurrencyExchangeController(CurrencyExchangeService service, Property property) {
         this.service = service;
+        this.property = property;
     }
 
     public void inputCommandHandler(String command, List<String> inputRate) {
@@ -255,8 +258,8 @@ public class CurrencyExchangeController {
      */
     private boolean isInputCurrencyLocal(String action, String inputCurrency) {
 
-        Currency localeCurrency = Currency.getInstance(Locale.getDefault());
-        if (!Currency.getInstance(inputCurrency).equals(localeCurrency))
+        String localeCurrency = property.getCurrencyCode();//Currency.getInstance(Locale.getDefault());
+        if (!inputCurrency.equals(localeCurrency))
             return false;
         else {
             if (action.equals("put")) {
