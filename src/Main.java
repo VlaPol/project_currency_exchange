@@ -6,16 +6,19 @@ import by.tms.service.CurrencyExchangeService;
 import by.tms.service.CurrencyExchangeServiceImpl;
 
 import java.nio.file.Path;
+import java.util.Currency;
 import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
 
         Path fileDirectory = Path.of(System.getenv("PATH_CURRENCY_REPOSITORY"));
+        Currency currentCurrencyCode = Currency.getInstance(System.getenv("LOCAL_CURRENCY_CODE"));
+        Property property = new Property(fileDirectory, currentCurrencyCode);
 
-        CurrencyExchangeRepository repository = new CurrencyExchangeRepositoryImpl(new Property(fileDirectory));
+        CurrencyExchangeRepository repository = new CurrencyExchangeRepositoryImpl(property);
         CurrencyExchangeService service = new CurrencyExchangeServiceImpl(repository);
-        CurrencyExchangeController controller = new CurrencyExchangeController(service);
+        CurrencyExchangeController controller = new CurrencyExchangeController(service, property);
 
         if (args.length > 0) {
             String userCommand = args[0];

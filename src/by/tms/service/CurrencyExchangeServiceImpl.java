@@ -4,6 +4,7 @@ import by.tms.entity.Rate;
 import by.tms.repository.CurrencyExchangeRepository;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Currency;
@@ -46,5 +47,31 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService {
 
         Map<Currency, String> receivedList = repository.getRatesFromFile(LocalDate.parse(inputRate.get(0)));
         return new ArrayList<>(receivedList.values());
+    }
+
+    @Override
+    public BigDecimal exchangeCurrencies(List<String> inputRate) {
+
+        Map<Currency, String> ratesFromFile = repository.getRatesFromFile(LocalDate.parse(inputRate.get(0)));
+        BigDecimal inputCur = BigDecimal.valueOf(Double.parseDouble(inputRate.get(1)));
+        BigDecimal firstExchangeValue = BigDecimal.ZERO;
+        BigDecimal secondExchangeValue = BigDecimal.ZERO;
+
+        for (Map.Entry<Currency, String> itm : ratesFromFile.entrySet()) {
+
+            if (itm.getKey().equals(Currency.getInstance(inputRate.get(2)))) {
+                String[] tmpArray = itm.getValue().split(",");
+                firstExchangeValue = BigDecimal.valueOf(Double.parseDouble(tmpArray[1]));
+            }
+            if (itm.getKey().equals(Currency.getInstance(inputRate.get(3)))) {
+                String[] tmpArray = itm.getValue().split(",");
+                secondExchangeValue = BigDecimal.valueOf(Double.parseDouble(tmpArray[2]));
+            }
+
+            if (!firstExchangeValue.equals(BigDecimal.ZERO) && !secondExchangeValue.equals(BigDecimal.ZERO)) {
+                break;
+            }
+        }
+        return inputCur.multiply(firstExchangeValue).divide(secondExchangeValue, 2, RoundingMode.HALF_UP);
     }
 }
